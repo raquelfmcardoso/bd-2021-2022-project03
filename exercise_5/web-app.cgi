@@ -9,6 +9,10 @@ d) Listar todas as sub-categorias de uma super-categoria, a todos os níveis de 
 A solução deve prezar pela segurança, prevenindo ataques por SQL INJECTION. Além disso, a atomicidade
 das operações sobre a base de dados deve estar assegurada. Pode-se utilizar CSS, embora não seja objeto
 de avaliação.
+
+A solução deve prezar pela segurança, prevenindo ataques por SQL INJECTION.
+Além disso, a atomicidade das operações sobre a base de dados deve estar assegurada.
+Pode-se utilizar CSS, embora não seja objeto de avaliação.
 '''
 
 
