@@ -7,9 +7,9 @@ import psycopg2.extras
 
 ## SGBD configs
 DB_HOST = "db.tecnico.ulisboa.pt"
-DB_USER = myuser
+DB_USER = "ist199287"
 DB_DATABASE = DB_USER
-DB_PASSWORD = hunter2
+DB_PASSWORD = "Miguel2003"
 DB_CONNECTION_STRING = "host=%s dbname=%s user=%s password=%s" % (
     DB_HOST,
     DB_DATABASE,
@@ -18,7 +18,6 @@ DB_CONNECTION_STRING = "host=%s dbname=%s user=%s password=%s" % (
 )
 
 app = Flask(__name__)
-
 
 @app.route("/")
 def list_accounts():
@@ -81,6 +80,5 @@ def update_balance():
         dbConn.commit()
         cursor.close()
         dbConn.close()
-
 
 CGIHandler().run(app)

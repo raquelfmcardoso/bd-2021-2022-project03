@@ -2,13 +2,11 @@
 import psycopg2
 import psycopg2.extras
 
-
-
 ## SGBD configs
 DB_HOST="db.tecnico.ulisboa.pt"
-DB_USER="" 
+DB_USER="ist199287" 
 DB_DATABASE=DB_USER
-DB_PASSWORD=""
+DB_PASSWORD="Miguel2003"
 DB_CONNECTION_STRING = "host=%s dbname=%s user=%s password=%s" % (DB_HOST, DB_DATABASE, DB_USER, DB_PASSWORD)
 
 try:
@@ -26,7 +24,7 @@ try:
     print('<p> Connected to Postgres on <strong>{DB_HOST}</strong> as user <strong>{DB_USER}</strong> on database <strong>{DB_DATABASE}</strong>. </p>'.format(DB_HOST=DB_HOST,DB_USER=DB_USER,DB_DATABASE=DB_DATABASE))
     print('<p> Runing SQL query: <strong>{query}</strong> </p>'.format(query=query))
     print('<p> {rowcount} records retreived:</p>'.format(rowcount=rowcount))
-    print('<table border=3">')
+    print('<table border=5">')
     print('  <thead>')
     print('    <tr>')
     print('      <th>account_number</th>')
