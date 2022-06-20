@@ -18,7 +18,8 @@ Pode-se utilizar CSS, embora não seja objeto de avaliação.
 #!/usr/bin/python3
 from wsgiref.handlers import CGIHandler
 from flask import Flask
-from flask import render_template, request
+from flask import render_template, request, redirect, url_for
+
 import psycopg2
 import psycopg2.extras
 

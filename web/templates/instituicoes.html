@@ -1,0 +1,93 @@
+<doctype html>
+<title>Instituições</title>
+<body style= "padding:20px">
+    <style>
+        body {
+          background-image: url('https://smarthealthplugins.com/wp-content/uploads/2018/12/healthcare-background.jpg');
+        }
+        #menu {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        background-color: whitesmoke;
+        }
+        h1 {
+        font-family: Arial, Helvetica, sans-serif;
+        color:white;
+        }
+        button {
+        background-color: #0a97c2;
+        border: none;
+        color: white;
+        padding: 10px;
+        margin-bottom: 20px;
+        margin-right: 1em;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        }
+        button:hover{
+            background-color: #044255;
+        }
+        #tabela{
+            overflow:scroll;
+            height: 60%;
+            padding-bottom: 2rem;
+        }
+        #menu td, #menu th {
+        border: 1px solid #ddd;
+        padding: 8px;
+        }
+        
+        #menu tr:nth-child(even){background-color: #f2f2f2;}
+
+        #menu tr:hover {background-color: #ddd;}
+
+        #menu th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: rgb(4, 142, 184);
+        color: white;
+        }
+    </style>
+    
+    <h1>Menu Instituições</h1>
+    
+    <div id="tabela">
+        <button onclick="window.location.href='menu'">Menu principal</button>
+        <button onclick="window.location.href='instituicoes/inserir_request'">Inserir instituição</button>
+    {% if cursor %}
+    <table id="menu">
+        <thead>
+        <tr>
+        <th> Nome </th>
+        <th> Tipo </th>
+        <th> Concelho </th>
+        <th> Número de região </th>
+        <th> Número de concelho </th>
+        <th> Gestão </th>
+        </tr>
+    </thead>
+    {% for record in cursor %}
+    <tr>
+        <td> {{ record[0] }} </td>
+        <td> {{ record[1] }} </td>
+        <td> {{ record[4] }} </td>
+        <td> {{ record[2] }} </td>
+        <td> {{ record[3] }} </td>
+        <td><a href= "instituicoes/alterar?nome={{ record[0]}}&tipo={{ record[1]}}&num_regiao={{ record[2]}}&num_concelho={{ record[3]}}&concelho={{ record[4]}}"> Alterar</a>    <a href= "instituicoes/remover?nome={{ record[0]}}&tipo={{ record[1]}}&num_regiao={{ record[2]}}&num_concelho={{ record[3]}}&concelho={{ record[4]}}"> Remover </a></td >
+    </tr>
+    {% endfor %} 
+    </table>
+    </div>
+    {% else %}
+    <p> Erro: não foi possível obter dados da base de dados! </p>
+    {% endif %}
+</body>
+</doctype>
+<script>
+    function goBack() {
+      window.history.back();
+    }
+</script>

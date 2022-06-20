@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="pt">
   <head>
@@ -15,3 +16,22 @@
     </form>
   </body>
 </html>
+=======
+<html>
+    <body style="padding:20px">
+        <h1>Insira os dados do Retalhista</h1>
+        <form action="removing" method="post">
+            <input type= "hidden" name= "tin" value= "{{ params.get('tin') }}" />
+
+            <label>TIN</label>
+            <input type="number" value="{{ params.get('tin') }}" disabled/>
+
+            <label>Nome</label>
+            <input type="text" value="{{ params.get('nome') }}" disabled/>
+
+            <input type="submit" value="Eliminar"/> <input type= "button" onclick="goBack()" value= "Cancelar"/>
+        </form>
+    </body>
+</html>
+<script>function goBack() {window.history.back();}</script>
+>>>>>>> bb2e0c1b74179cad46fb2a05535fc72882602bcc
