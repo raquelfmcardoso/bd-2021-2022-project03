@@ -94,7 +94,7 @@ def add_retailer():
     return str(e)
 
 @app.route("/retailers/removing", methods=["POST"])
-def delete_medico_fromDB():
+def removing_retailer_database():
   dbConn=None
   cursor=None
   try:
