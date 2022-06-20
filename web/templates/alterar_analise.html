@@ -1,0 +1,78 @@
+<html>
+    <body style="font-family: Arial, Helvetica, sans-serif">
+        <style>
+            body {
+          background-image: url('https://smarthealthplugins.com/wp-content/uploads/2018/12/healthcare-background.jpg');
+        }
+        input[type=text],input[type=date], select {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        }
+
+        input[type=submit],input[type=button] {
+        width: 100%;
+        background-color:  #087ead;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        }
+
+        input[type=submit]:hover,input[type=button]:hover {
+        background-color: #066388;
+        }
+
+        div {
+        border-radius: 5px;
+        background-color: #f2f2f2;
+        padding:20px;
+        margin: 3rem;
+        }
+        
+        </style>
+        
+        <div>
+            <h1>Por favor corrija os dados que deseja</h1>
+            <form action="update" method="post">
+                <input type= "hidden" name= "num_analise_original" value= "{{ params.get('num_analise') }}"/>
+
+                <label>Número de análise</label>
+                <input type="text" name="num_analise" value="{{ params.get('num_analise') }}" />
+
+                <label>Especialidade</label>
+                <input type="text" name="espec" value="{{ params.get('espec') }}" />
+
+                <label>Número de cédula</label>
+                <input type="text" name="num_cedula" value="{{ params.get('num_cedula') }}" />
+
+                <label>Número de doente</label>
+                <input type="text" name="num_doente" value="{{ params.get('num_doente') }}" />
+
+                <label>Data</label>
+                <input type="date" name="data" value="{{ params.get('data') }}"  />
+
+                <label>Data de registo</label>
+                <input type="date" name="data_registo" value="{{ params.get('data_registo') }}" />
+
+                <label>Nome</label>
+                <input type="text" name="nome" value="{{ params.get('nome') }}" />
+
+                <label>Quantidade</label>
+                <input type="text" name="quant" value="{{ params.get('quant') }}" />
+
+                <label>Instituição</label>
+                <input type="text" name="inst" value="{{ params.get('inst') }}" />
+
+                <input type="submit" value="Alterar"/> <input type= "button" onclick="goBack()" value= "Cancelar"/>
+            </form>
+        </div>
+    </body>
+</html>
+<script>function goBack() {window.history.back();}</script>
