@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hierarquia</title>
+  </head>
+  <body style="padding: 20px">
+    <a href="select_super_category">
+      <input
+        type="button"
+        name="super_category"
+        value="Selecionar Super Categoria"
+      />
+    </a>
+    {% if cursor %}
+    <table border="2px">
+      <thead>
+        <tr>
+          <th>Super Categoria</th>
+          <th>Categoria</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in cursor %}
+        <tr>
+          <td>{{ record[0] }}</td>
+          <td>{{ record[1] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>Erro: não foi possível obter dados da base de dados!</p>
+    {% endif %}
+  </body>
+</html>

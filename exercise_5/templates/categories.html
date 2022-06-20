@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Categorias</title>
+  </head>
+  <body style="padding: 20px">
+    {% if cursor %}
+    <table border="2px">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Remover</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in cursor %}
+        <tr>
+          <td>{{ record[0] }}</td>
+          <td>
+            <a href="categories/remove?nome={{ record[0] }}"
+              >Remover categoria</a
+            >
+          </td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <td>
+            <a href="categories/add?nome={{ record[0] }}"
+              >Adicionar categoria</a
+            >
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    {% else %}
+    <p>Erro: não foi possível obter dados da base de dados!</p>
+    {% endif %}
+  </body>
+</html>

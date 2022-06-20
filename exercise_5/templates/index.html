@@ -1,45 +1,27 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>List accounts - Flask</title>
-</head>
-<body style="padding:20px">
-{% if cursor %}
-    <table border="2px">
-        <thead>
-            <tr>
-                <th>Categorias - Adicionar/Remover</th>
-                <th>Categorias - Ver todas</th>
-                <th>Eventos de Reposição - Ver todos</th>
-                <th>Retalhistas - Adicionar/Remover</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for record in cursor %}
-            <tr>
-                <td>{{ record[0] }}</td>
-                <td>{{ record[1] }}</td>
-                <td>{{ record[2] }}</td>
-                <td>{{ record[3] }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-{% else %}
-    <p> Erro: ao obter dados da base de dados!</p>
-{% endif %}
-</body>
-</html> -->
-
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projeto 3 BD</title>
-</head>
-<body>
-    <a href=""></a>
-</body>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Indíce - Projeto 3 BD</title>
+  </head>
+  <body>
+    <a href="categories">
+      <input type="button" name="categories" value="Mostrar categorias" />
+    </a>
+    <a href="retailers">
+      <input type="button" name="retailers" value="Mostrar retalhistas" />
+    </a>
+    <a href="reposition_events">
+      <input
+        type="button"
+        name="reposition_events"
+        value="Mostrar eventos de
+      reposição"
+      />
+    </a>
+    <a href="hierarchy">
+      <input type="button" name="hierarchy" value="Mostrar hierarquia" />
+    </a>
+  </body>
 </html>

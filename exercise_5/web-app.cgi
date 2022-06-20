@@ -38,37 +38,55 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    try:
+        return render_template("index.html", params=request.args)
+    except Exception as e:
+        return str(e)
 
-@app.route("/list_categories")
+# --------------------------------------------------- CATEGORIES ---------------------------------------------------
+
+@app.route("/categories")
 def list_categories():
     dbConn = None
     cursor = None
     try:
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        query = "SELECT * FROM categoria_simples;"
+        query = "SELECT * FROM categoria;"
         cursor.execute(query)
-        return render_template("list_categories.html", cursor=cursor)
+        return render_template("categories.html", cursor=cursor, params=request.args)
     except Exception as e:
         return str(e)
     finally:
         cursor.close()
         dbConn.close()
 
-@app.route("/add_remove", methods=["POST"])
-def update_balance():
+@app.route("/categories/add")
+def add_category():
+    try:
+        return render_template("add_category.html", params=request.args)
+    except Exception as e:
+        return str(e)
+
+@app.route("/categories/remove")
+def remove_category():
+    try:
+        return render_template("remove_category.html", params=request.args)
+    except Exception as e:
+        return str(e)
+
+@app.route("/categories/do_add", methods=["POST"])
+def add_category_to_database():
     dbConn = None
     cursor = None
     try:
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        balance = request.form["balance"]
-        account_number = request.form["account_number"]
-        query = "UPDATE account SET balance=%s WHERE account_number = %s"
-        data = (balance, account_number)
+        # INSERIR NAS TABELAS TODAS
+        query = "INSERT INTO categoria values(%s);"
+        data = request.form["nome"]
         cursor.execute(query, data)
-        return query
+        return render_template("index.html")
     except Exception as e:
         return str(e)
     finally:
@@ -76,5 +94,181 @@ def update_balance():
         cursor.close()
         dbConn.close()
 
-if __name__ == "__main__":
-    app.run(debug=True)
+@app.route("/categories/do_remove", methods=["POST"])
+def remove_category_from_database():
+    dbConn = None
+    cursor = None
+    try:
+        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        # REMOVER DAS TABELAS TODAS
+        query = "DELETE FROM categoria WHERE nome=%s;"
+        data = request.form["nome"]
+        cursor.execute(query, data)
+        return render_template("index.html")
+    except Exception as e:
+        return str(e)
+    finally:
+        dbConn.commit()
+        cursor.close()
+        dbConn.close()
+
+# --------------------------------------------------- RETAILERS ---------------------------------------------------
+
+@app.route("/retailers")
+def list_retailers():
+    dbConn = None
+    cursor = None
+    try:
+        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        query = "SELECT * FROM retalhista;"
+        cursor.execute(query)
+        return render_template("retailers.html", cursor=cursor, params=request.args)
+    except Exception as e:
+        return str(e)
+    finally:
+        cursor.close()
+        dbConn.close()
+
+@app.route('/retailers/add')
+def add_retailer():
+  try:
+    return render_template("add_retailer.html", params=request.args)
+  except Exception as e:
+    return str(e)
+
+@app.route('/retailers/remove')
+def add_retailer():
+  try:
+    return render_template("remove_retailer.html", params=request.args)
+  except Exception as e:
+    return str(e)
+
+@app.route('/retailers/do_add', methods=["POST"])
+def add_retailer_to_database():
+  dbConn=None
+  cursor=None
+  try:
+    dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+    cursor = dbConn.cursor(cursor_factory = psycopg2.extras.DictCursor)
+    # INSERIR OS MAMBOS TODOS
+    query = "INSERT INTO retalhista VALUES (%s,%s);"
+    data = (request.form["tin"], request.form["nome"])
+    cursor.execute(query, data)
+    return render_template("index.html")
+  except Exception as e:
+    return str(e)
+  finally:
+    dbConn.commit()
+    cursor.close()
+    dbConn.close()
+
+@app.route("/retailers/do_remove", methods=["POST"])
+def remove_retailer_from_database():
+  dbConn=None
+  cursor=None
+  try:
+    dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+    cursor = dbConn.cursor(cursor_factory = psycopg2.extras.DictCursor)
+    # TIRAR OS MAMBOS TODOS
+    query = "DELETE FROM retalhista WHERE tin=%s;"
+    data = (request.form["tin"])
+    cursor.execute(query, data)
+    return render_template("index.html")
+  except Exception as e:
+    return str(e) 
+  finally:
+    dbConn.commit()
+    cursor.close()
+    dbConn.close()
+
+# --------------------------------------------------- REPOSITION EVENTS ---------------------------------------------------
+
+@app.route("/reposition_events")
+def list_reposition_events():
+    dbConn = None
+    cursor = None
+    try:
+        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        query = "SELECT * FROM evento_reposicao;"
+        cursor.execute(query)
+        return render_template("reposition_events.html", cursor=cursor, params=request.args)
+    except Exception as e:
+        return str(e)
+    finally:
+        cursor.close()
+        dbConn.close()
+
+@app.route("/reposition_events/select_IVM")
+def select_IVM():
+    try:
+        return render_template("select_ivm.html", params=request.args)
+    except Exception as e:
+        return str(e)
+
+@app.route("/reposition_events/specific_ivm")
+def show_specific_IVM():
+  dbConn=None
+  cursor=None
+  try:
+    dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+    cursor = dbConn.cursor(cursor_factory = psycopg2.extras.DictCursor)
+    # MOSTRAR TUDO
+    query = "DELETE FROM retalhista WHERE tin=%s;"
+    data = (request.form["num_serie"], request.form["fabricante"])
+    cursor.execute(query,data)
+    return render_template("specific_ivm.html", cursor=cursor, params=request.args)
+  except Exception as e:
+    return str(e) 
+  finally:
+    dbConn.commit()
+    cursor.close()
+    dbConn.close()
+
+# --------------------------------------------------- HIERARCHY ---------------------------------------------------
+
+@app.route("/hierarchy")
+def list_hierarchy():
+    dbConn = None
+    cursor = None
+    try:
+        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        query = "SELECT * FROM categoria;"
+        cursor.execute(query)
+        return render_template("hierarchy.html", cursor=cursor)
+    except Exception as e:
+        return str(e)
+    finally:
+        cursor.close()
+        dbConn.close()
+
+@app.route("/reposition_events/select_super_category")
+def select_super_category():
+    try:
+        return render_template("select_super_category.html", params=request.args)
+    except Exception as e:
+        return str(e)
+
+@app.route("/reposition_events/specific_hierarchy")
+def list_specific_hierarchy():
+    dbConn=None
+    cursor=None
+    try:
+        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+        cursor = dbConn.cursor(cursor_factory = psycopg2.extras.DictCursor)
+        # MOSTRAR TUDO
+        query = "DELETE FROM retalhista WHERE tin=%s;"
+        data = (request.form["nome"])
+        cursor.execute(query,data)
+        return render_template("specific_hierarchy.html")
+    except Exception as e:
+        return str(e) 
+    finally:
+        dbConn.commit()
+        cursor.close()
+        dbConn.close()
+
+CGIHandler().run(app)

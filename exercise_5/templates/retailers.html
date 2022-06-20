@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Retalhistas</title>
+  </head>
+  <body style="padding: 20px">
+    {% if cursor %}
+    <table border="2px">
+      <thead>
+        <tr>
+          <th>TIN</th>
+          <th>Nome</th>
+          <th>Remover</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in cursor %}
+        <tr>
+          <td>{{ record[0] }}</td>
+          <td>{{ record[1] }}</td>
+          <td>
+            <a href="retailers/remove?tin={{ record[0] }}&nome={{ record[1] }}"
+              >Remover categoria</a
+            >
+          </td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <td>
+            <a href="retailers/remove?tin={{ record[0] }}&nome={{ record[1] }}"
+              >Adicionar categoria</a
+            >
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    {% else %}
+    <p>Erro: não foi possível obter dados da base de dados!</p>
+    {% endif %}
+  </body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eventos de Reposição</title>
+  </head>
+  <body style="padding: 20px">
+    <a href="select_IVM">
+      <input type="button" name="ivm" value="Selecionar IVM" />
+    </a>
+    {% if cursor %}
+    <table border="2px">
+      <thead>
+        <tr>
+          <th>EAN</th>
+          <th>Número</th>
+          <th>TIN</th>
+          <th>Número de Série</th>
+          <th>Fabricante</th>
+          <th>Data</th>
+          <th>Unidades</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in cursor %}
+        <tr>
+          <td>{{ record[0] }}</td>
+          <td>{{ record[1] }}</td>
+          <td>{{ record[2] }}</td>
+          <td>{{ record[3] }}</td>
+          <td>{{ record[4] }}</td>
+          <td>{{ record[5] }}</td>
+          <td>{{ record[6] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>Erro: não foi possível obter dados da base de dados!</p>
+    {% endif %}
+  </body>
+</html>

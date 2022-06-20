@@ -1,31 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>List all categories</title>
+    <title>Super Categoria Selecionada</title>
   </head>
-  <body style="padding: 20px">
+  <body>
+    <!-- Tabela dos eventos de reposição -->
     {% if cursor %}
     <table border="2px">
       <thead>
         <tr>
-          <th>Categorias</th>
+          <th>Super Categoria</th>
+          <th>Sub Categoria</th>
         </tr>
       </thead>
       <tbody>
         {% for record in cursor %}
         <tr>
           <td>{{ record[0] }}</td>
-          <td>
-            <a href="balance?account_number={{ record[0] }}">Alterar saldo</a>
-          </td>
+          <td>{{ record[1] }}</td>
         </tr>
         {% endfor %}
       </tbody>
-    </table>
-    {% else %}
-    <p>Erro: não foi possível obter dados da base de dados!</p>
     {% endif %}
   </body>
 </html>
