@@ -84,7 +84,7 @@ def add_category_to_database():
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # INSERIR NAS TABELAS TODAS
-        query = "INSERT INTO categoria values(%s);"
+        query = "INSERT INTO categoria values(%s); INSERT INTO categoria_simples values(%s);"
         data = request.form["nome"]
         cursor.execute(query, data)
         return render_template("index.html")
@@ -103,7 +103,9 @@ def remove_category_from_database():
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # REMOVER DAS TABELAS TODAS
-        query = "DELETE FROM categoria WHERE nome=%s;"
+        query = "DELETE FROM categoria WHERE nome=%s; DELETE FROM categoria_simples WHERE nome=%s; DELETE FROM tem_outra WHERE categoria=%s; \
+            DELTE FROM produto WHERE cat=%s; DELETE FROM tem_categoria WHERE nome=%s; DELETE FROM prateleira WHERE nome=%s; \
+            DELETE FROM responsavel_por WHERE nome_cat=%s; DELETE FROM tem_categoria WHERE nome=%s;"
         data = request.form["nome"]
         cursor.execute(query, data)
         return render_template("index.html")
@@ -173,7 +175,8 @@ def remove_retailer_from_database():
     dbConn = psycopg2.connect(DB_CONNECTION_STRING)
     cursor = dbConn.cursor(cursor_factory = psycopg2.extras.DictCursor)
     # TIRAR OS MAMBOS TODOS
-    query = "DELETE FROM retalhista WHERE tin=%s;"
+    query = "DELETE FROM retalhista WHERE tin=%s; DELETE FROM responsavel_por WHERE tin=%s; \
+        DELETE FROM evento_reposicao WHERE tin=%s;"
     data = (request.form["tin"])
     cursor.execute(query, data)
     return render_template("index.html")
@@ -217,7 +220,9 @@ def show_specific_IVM():
     dbConn = psycopg2.connect(DB_CONNECTION_STRING)
     cursor = dbConn.cursor(cursor_factory = psycopg2.extras.DictCursor)
     # MOSTRAR TUDO
-    query = "DELETE FROM retalhista WHERE tin=%s;"
+    query = "SELECT ean, nro, num_serie, fabricante, instante, unidades, nome, SUM(unidades)\
+        FROM evento_reposicao NATURAL_JOIN produto NATURAL_JOIN categoria\
+        GROUP BY %s, %s"
     data = (request.form["num_serie"], request.form["fabricante"])
     cursor.execute(query,data)
     return render_template("specific_ivm.html", cursor=cursor, params=request.args)
@@ -261,7 +266,12 @@ def list_specific_hierarchy():
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory = psycopg2.extras.DictCursor)
         # MOSTRAR TUDO
-        query = "DELETE FROM retalhista WHERE tin=%s;"
+        query = "WITH RECURSIVE recur AS (\
+                    SELECT tabela.super_categoria, tabela.categoria FROM tem_outra tabela WHERE tabela.super_categoria = input\
+                    UNION ALL\
+                    SELECT tabela2.super_categoria, tabela2.categoria FROM tem_outra tabela2\
+                    JOIN recur recur2 ON recur2.categoria = tabela2.super_categoria\
+                ) SELECT * FROM recur;"
         data = (request.form["nome"])
         cursor.execute(query,data)
         return render_template("specific_hierarchy.html")
