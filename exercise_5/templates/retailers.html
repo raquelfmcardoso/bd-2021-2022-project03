@@ -12,7 +12,6 @@
         <tr>
           <th>TIN</th>
           <th>Nome</th>
-          <th>Remover</th>
         </tr>
       </thead>
       <tbody>
@@ -20,18 +19,16 @@
         <tr>
           <td>{{ record[0] }}</td>
           <td>{{ record[1] }}</td>
-          <td>
-            <a href="retailers/remove?tin={{ record[0] }}&nome={{ record[1] }}"
-              >Remover categoria</a
-            >
-          </td>
         </tr>
         {% endfor %}
         <tr>
           <td>
-            <a href="retailers/remove?tin={{ record[0] }}&nome={{ record[1] }}"
-              >Adicionar categoria</a
-            >
+            <a href="retailers/add">Adicionar retalhista</a>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="retailers/remove">Remover retalhista</a>
           </td>
         </tr>
       </tbody>

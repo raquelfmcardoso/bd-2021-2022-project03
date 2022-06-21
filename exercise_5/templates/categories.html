@@ -11,25 +11,22 @@
       <thead>
         <tr>
           <th>Nome</th>
-          <th>Remover</th>
         </tr>
       </thead>
       <tbody>
         {% for record in cursor %}
         <tr>
           <td>{{ record[0] }}</td>
-          <td>
-            <a href="categories/remove?nome={{ record[0] }}"
-              >Remover categoria</a
-            >
-          </td>
         </tr>
         {% endfor %}
         <tr>
           <td>
-            <a href="categories/add?nome={{ record[0] }}"
-              >Adicionar categoria</a
-            >
+            <a href="categories/add">Adicionar categoria</a>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <a href="categories/remove">Remover categoria</a>
           </td>
         </tr>
       </tbody>

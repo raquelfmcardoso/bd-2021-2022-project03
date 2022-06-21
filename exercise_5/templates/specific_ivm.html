@@ -6,7 +6,9 @@
     <title>IVM Selecionada</title>
   </head>
   <body>
-    <!-- Tabela dos eventos de reposição -->
+    <a href="/">
+      <input type="button" name="root" value="Voltar à raíz" />
+    </a>
     {% if cursor %}
     <table border="2px">
       <thead>
@@ -17,7 +19,8 @@
           <th>Fabricante</th>
           <th>Data</th>
           <th>Unidades</th>
-          <th>TIN</th>
+          <th>Categoria</th>
+          <th>Total</th>
         </tr>
       </thead>
       <tbody>
@@ -30,23 +33,7 @@
           <td>{{ record[4] }}</td>
           <td>{{ record[5] }}</td>
           <td>{{ record[6] }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    <!-- Tabela dos produtos e respetivas unidades -->
-    <table border="2px">
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Unidades</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for record in cursor %}
-        <tr>
           <td>{{ record[7] }}</td>
-          <td>{{ record[8] }}</td>
         </tr>
         {% endfor %}
       </tbody>

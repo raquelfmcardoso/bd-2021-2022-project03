@@ -16,6 +16,7 @@ Pode-se utilizar CSS, embora não seja objeto de avaliação.
 '''
 
 #!/usr/bin/python3
+from crypt import methods
 from wsgiref.handlers import CGIHandler
 from flask import Flask
 from flask import render_template, request, redirect, url_for
@@ -85,9 +86,9 @@ def add_category_to_database():
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # INSERIR NAS TABELAS TODAS
         query = "INSERT INTO categoria values(%s); INSERT INTO categoria_simples values(%s);"
-        data = request.form["nome"]
+        data = (request.form["nome"], request.form["nome"])
         cursor.execute(query, data)
-        return render_template("index.html")
+        return redirect("/")
     except Exception as e:
         return str(e)
     finally:
@@ -103,12 +104,14 @@ def remove_category_from_database():
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         # REMOVER DAS TABELAS TODAS
-        query = "DELETE FROM categoria WHERE nome=%s; DELETE FROM categoria_simples WHERE nome=%s; DELETE FROM tem_outra WHERE categoria=%s; \
-            DELTE FROM produto WHERE cat=%s; DELETE FROM tem_categoria WHERE nome=%s; DELETE FROM prateleira WHERE nome=%s; \
-            DELETE FROM responsavel_por WHERE nome_cat=%s; DELETE FROM tem_categoria WHERE nome=%s;"
-        data = request.form["nome"]
+        query = "DELETE FROM categoria_simples WHERE nome=%s; DELETE FROM tem_outra WHERE categoria=%s; \
+            DELETE FROM produto WHERE cat=%s; DELETE FROM tem_categoria WHERE nome=%s; DELETE FROM prateleira WHERE nome=%s; \
+            DELETE FROM responsavel_por WHERE nome_cat=%s; DELETE FROM tem_categoria WHERE nome=%s;\
+            DELETE FROM categoria WHERE nome=%s; "
+        data = (request.form["nome"], request.form["nome"], request.form["nome"], request.form["nome"],\
+                request.form["nome"], request.form["nome"], request.form["nome"], request.form["nome"])
         cursor.execute(query, data)
-        return render_template("index.html")
+        return redirect("/")
     except Exception as e:
         return str(e)
     finally:
@@ -142,7 +145,7 @@ def add_retailer():
     return str(e)
 
 @app.route('/retailers/remove')
-def add_retailer():
+def remove_retailer():
   try:
     return render_template("remove_retailer.html", params=request.args)
   except Exception as e:
@@ -159,7 +162,7 @@ def add_retailer_to_database():
     query = "INSERT INTO retalhista VALUES (%s,%s);"
     data = (request.form["tin"], request.form["nome"])
     cursor.execute(query, data)
-    return render_template("index.html")
+    return redirect("/")
   except Exception as e:
     return str(e)
   finally:
@@ -177,9 +180,9 @@ def remove_retailer_from_database():
     # TIRAR OS MAMBOS TODOS
     query = "DELETE FROM retalhista WHERE tin=%s; DELETE FROM responsavel_por WHERE tin=%s; \
         DELETE FROM evento_reposicao WHERE tin=%s;"
-    data = (request.form["tin"])
+    data = (request.form["tin"], request.form["tin"], request.form["tin"])
     cursor.execute(query, data)
-    return render_template("index.html")
+    return redirect("/")
   except Exception as e:
     return str(e) 
   finally:
@@ -212,7 +215,7 @@ def select_IVM():
     except Exception as e:
         return str(e)
 
-@app.route("/reposition_events/specific_ivm")
+@app.route("/reposition_events/specific_ivm", methods = ["POST"])
 def show_specific_IVM():
   dbConn=None
   cursor=None
@@ -221,10 +224,16 @@ def show_specific_IVM():
     cursor = dbConn.cursor(cursor_factory = psycopg2.extras.DictCursor)
     # MOSTRAR TUDO
     query = "SELECT ean, nro, num_serie, fabricante, instante, unidades, nome, SUM(unidades)\
-        FROM evento_reposicao NATURAL_JOIN produto NATURAL_JOIN categoria\
-        GROUP BY %s, %s"
+        FROM evento_reposicao NATURAL JOIN produto NATURAL JOIN categoria\
+        WHERE (evento_reposicao.num_serie=%s AND evento_reposicao.fabricante=%s)\
+        AND (evento_reposicao.num_serie, evento_reposicao.fabricante) IN(SELECT num_serie.fabricante\
+        FROM(\
+        SELECT a.* FROM evento_reposicao a INNER JOIN(SELECT num_serie, fabricante\
+        FROM evento_reposicao GROUP BY num_serie,fabricante)\
+        b ON a.fabricante != b.fabricante AND a.num_serie != b.num_serie) AS num_serie)\
+        GROUP BY ean, nro, num_serie, fabricante, instante, unidades, nome;"
     data = (request.form["num_serie"], request.form["fabricante"])
-    cursor.execute(query,data)
+    cursor.execute(query, data)
     return render_template("specific_ivm.html", cursor=cursor, params=request.args)
   except Exception as e:
     return str(e) 
@@ -242,7 +251,7 @@ def list_hierarchy():
     try:
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        query = "SELECT * FROM categoria;"
+        query = "SELECT * FROM tem_outra;"
         cursor.execute(query)
         return render_template("hierarchy.html", cursor=cursor)
     except Exception as e:
@@ -251,14 +260,14 @@ def list_hierarchy():
         cursor.close()
         dbConn.close()
 
-@app.route("/reposition_events/select_super_category")
+@app.route("/hierarchy/select_super_category")
 def select_super_category():
     try:
         return render_template("select_super_category.html", params=request.args)
     except Exception as e:
         return str(e)
 
-@app.route("/reposition_events/specific_hierarchy")
+@app.route("/hierarchy/specific_hierarchy", methods = ["POST"])
 def list_specific_hierarchy():
     dbConn=None
     cursor=None
@@ -267,14 +276,13 @@ def list_specific_hierarchy():
         cursor = dbConn.cursor(cursor_factory = psycopg2.extras.DictCursor)
         # MOSTRAR TUDO
         query = "WITH RECURSIVE recur AS (\
-                    SELECT tabela.super_categoria, tabela.categoria FROM tem_outra tabela WHERE tabela.super_categoria = input\
-                    UNION ALL\
+                    SELECT tabela.super_categoria, tabela.categoria FROM tem_outra tabela \
+                    WHERE tabela.super_categoria=%s UNION ALL\
                     SELECT tabela2.super_categoria, tabela2.categoria FROM tem_outra tabela2\
                     JOIN recur recur2 ON recur2.categoria = tabela2.super_categoria\
-                ) SELECT * FROM recur;"
-        data = (request.form["nome"])
-        cursor.execute(query,data)
-        return render_template("specific_hierarchy.html")
+                ) SELECT * FROM recur;" % str("'" + request.form["nome"] + "'")
+        cursor.execute(query)
+        return render_template("specific_hierarchy.html", cursor=cursor, params=request.args)
     except Exception as e:
         return str(e) 
     finally:
@@ -282,4 +290,7 @@ def list_specific_hierarchy():
         cursor.close()
         dbConn.close()
 
-CGIHandler().run(app)
+if __name__ == "__main__":
+    app.run(debug=True)
+
+#CGIHandler().run(app)
