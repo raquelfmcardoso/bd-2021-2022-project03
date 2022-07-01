@@ -6,10 +6,17 @@
     <title>Remover Categoria</title>
   </head>
   <body>
+    {% if cursor %}
     <form action="do_remove" method="post">
-      <label for="nome">Nome:</label>
-      <input type="text" name="nome" id="nome" />
-      <input type="submit" name="input" />
+      <select name="nome" id="nome">
+        {% for record in cursor %}
+          <option value="{{ record[0] }}" > {{ record[0] }} </option>
+        {% endfor %}
+      </select>
+      <input type="submit" value="input"/>
     </form>
+    {% else %}
+    <p>Erro: não foi possível obter dados da base de dados!</p>
+    {% endif %}
   </body>
 </html>

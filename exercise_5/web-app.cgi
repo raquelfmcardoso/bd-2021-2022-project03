@@ -1,26 +1,7 @@
-'''
-Crie um protótipo de aplicação web em scripts Python CGI e páginas HTML que permita:
-a) Inserir e remover categorias e sub-categorias;
-b) Inserir e remover um retalhista, com todos os seus produtos, garantindo que esta operação seja
-atómica;
-c) Listar todos os eventos de reposição de uma IVM, apresentando o número de unidades repostas por
-categoria de produto;
-d) Listar todas as sub-categorias de uma super-categoria, a todos os níveis de profundidade.
-A solução deve prezar pela segurança, prevenindo ataques por SQL INJECTION. Além disso, a atomicidade
-das operações sobre a base de dados deve estar assegurada. Pode-se utilizar CSS, embora não seja objeto
-de avaliação.
-
-A solução deve prezar pela segurança, prevenindo ataques por SQL INJECTION.
-Além disso, a atomicidade das operações sobre a base de dados deve estar assegurada.
-Pode-se utilizar CSS, embora não seja objeto de avaliação.
-'''
-
 #!/usr/bin/python3
-from crypt import methods
 from wsgiref.handlers import CGIHandler
 from flask import Flask
-from flask import render_template, request, redirect, url_for
-
+from flask import render_template, request, redirect
 import psycopg2
 import psycopg2.extras
 
@@ -38,16 +19,17 @@ DB_CONNECTION_STRING = "host=%s dbname=%s user=%s password=%s" % (
 
 app = Flask(__name__)
 
-@app.route("/")
+@app.route('/')
 def index():
     try:
+
         return render_template("index.html", params=request.args)
     except Exception as e:
-        return str(e)
+        return render_template("error.html", error_message=e)  # Renders a page with the error.
 
 # --------------------------------------------------- CATEGORIES ---------------------------------------------------
 
-@app.route("/categories")
+@app.route('/categories')
 def list_categories():
     dbConn = None
     cursor = None
@@ -58,52 +40,56 @@ def list_categories():
         cursor.execute(query)
         return render_template("categories.html", cursor=cursor, params=request.args)
     except Exception as e:
-        return str(e)
+        return render_template("error.html", error_message=e)  # Renders a page with the error.
     finally:
         cursor.close()
         dbConn.close()
 
-@app.route("/categories/add")
+@app.route('/categories/add')
 def add_category():
     try:
         return render_template("add_category.html", params=request.args)
     except Exception as e:
-        return str(e)
+        return render_template("error.html", error_message=e)  # Renders a page with the error.
 
-@app.route("/categories/remove")
+@app.route('/categories/remove')
 def remove_category():
+    dbConn = None
+    cursor = None
     try:
+        dbConn = psycopg2.connect(DB_CONNECTION_STRING)
+        cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        query = "SELECT * FROM categoria;"
+        cursor.execute(query)
         return render_template("remove_category.html", params=request.args)
     except Exception as e:
-        return str(e)
+        return render_template("error.html", error_message=e)  # Renders a page with the error.
 
-@app.route("/categories/do_add", methods=["POST"])
+@app.route('/categories/do_add', methods=["POST"])
 def add_category_to_database():
     dbConn = None
     cursor = None
     try:
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        # INSERIR NAS TABELAS TODAS
         query = "INSERT INTO categoria values(%s); INSERT INTO categoria_simples values(%s);"
         data = (request.form["nome"], request.form["nome"])
         cursor.execute(query, data)
         return redirect("/")
     except Exception as e:
-        return str(e)
+        return render_template("error.html", error_message=e)  # Renders a page with the error.
     finally:
         dbConn.commit()
         cursor.close()
         dbConn.close()
 
-@app.route("/categories/do_remove", methods=["POST"])
+@app.route('/categories/do_remove', methods=["POST"])
 def remove_category_from_database():
     dbConn = None
     cursor = None
     try:
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        # REMOVER DAS TABELAS TODAS
         query = "DELETE FROM categoria_simples WHERE nome=%s; DELETE FROM tem_outra WHERE categoria=%s; \
             DELETE FROM produto WHERE cat=%s; DELETE FROM tem_categoria WHERE nome=%s; DELETE FROM prateleira WHERE nome=%s; \
             DELETE FROM responsavel_por WHERE nome_cat=%s; DELETE FROM tem_categoria WHERE nome=%s;\
@@ -113,7 +99,7 @@ def remove_category_from_database():
         cursor.execute(query, data)
         return redirect("/")
     except Exception as e:
-        return str(e)
+        return render_template("error.html", error_message=e)  # Renders a page with the error.
     finally:
         dbConn.commit()
         cursor.close()
@@ -121,7 +107,7 @@ def remove_category_from_database():
 
 # --------------------------------------------------- RETAILERS ---------------------------------------------------
 
-@app.route("/retailers")
+@app.route('/retailers')
 def list_retailers():
     dbConn = None
     cursor = None
@@ -132,7 +118,7 @@ def list_retailers():
         cursor.execute(query)
         return render_template("retailers.html", cursor=cursor, params=request.args)
     except Exception as e:
-        return str(e)
+        return render_template("error.html", error_message=e)  # Renders a page with the error.
     finally:
         cursor.close()
         dbConn.close()
@@ -142,14 +128,14 @@ def add_retailer():
   try:
     return render_template("add_retailer.html", params=request.args)
   except Exception as e:
-    return str(e)
+    return render_template("error.html", error_message=e)  # Renders a page with the error.
 
 @app.route('/retailers/remove')
 def remove_retailer():
   try:
     return render_template("remove_retailer.html", params=request.args)
   except Exception as e:
-    return str(e)
+    return render_template("error.html", error_message=e)  # Renders a page with the error.
 
 @app.route('/retailers/do_add', methods=["POST"])
 def add_retailer_to_database():
@@ -158,33 +144,31 @@ def add_retailer_to_database():
   try:
     dbConn = psycopg2.connect(DB_CONNECTION_STRING)
     cursor = dbConn.cursor(cursor_factory = psycopg2.extras.DictCursor)
-    # INSERIR OS MAMBOS TODOS
-    query = "INSERT INTO retalhista VALUES (%s,%s);"
+    query = "INSERT INTO retalhista VALUES (%s, %s);"
     data = (request.form["tin"], request.form["nome"])
     cursor.execute(query, data)
     return redirect("/")
   except Exception as e:
-    return str(e)
+    return render_template("error.html", error_message=e)  # Renders a page with the error.
   finally:
     dbConn.commit()
     cursor.close()
     dbConn.close()
 
-@app.route("/retailers/do_remove", methods=["POST"])
+@app.route('/retailers/do_remove', methods=["POST"])
 def remove_retailer_from_database():
   dbConn=None
   cursor=None
   try:
     dbConn = psycopg2.connect(DB_CONNECTION_STRING)
     cursor = dbConn.cursor(cursor_factory = psycopg2.extras.DictCursor)
-    # TIRAR OS MAMBOS TODOS
     query = "DELETE FROM retalhista WHERE tin=%s; DELETE FROM responsavel_por WHERE tin=%s; \
         DELETE FROM evento_reposicao WHERE tin=%s;"
     data = (request.form["tin"], request.form["tin"], request.form["tin"])
     cursor.execute(query, data)
     return redirect("/")
   except Exception as e:
-    return str(e) 
+    return render_template("error.html", error_message=e)  # Renders a page with the error.
   finally:
     dbConn.commit()
     cursor.close()
@@ -192,7 +176,7 @@ def remove_retailer_from_database():
 
 # --------------------------------------------------- REPOSITION EVENTS ---------------------------------------------------
 
-@app.route("/reposition_events")
+@app.route('/reposition_events')
 def list_reposition_events():
     dbConn = None
     cursor = None
@@ -203,40 +187,37 @@ def list_reposition_events():
         cursor.execute(query)
         return render_template("reposition_events.html", cursor=cursor, params=request.args)
     except Exception as e:
-        return str(e)
+        return render_template("error.html", error_message=e)  # Renders a page with the error.
     finally:
         cursor.close()
         dbConn.close()
 
-@app.route("/reposition_events/select_IVM")
+@app.route('/reposition_events/select_IVM')
 def select_IVM():
     try:
         return render_template("select_ivm.html", params=request.args)
     except Exception as e:
-        return str(e)
+        return render_template("error.html", error_message=e)  # Renders a page with the error.
 
-@app.route("/reposition_events/specific_ivm", methods = ["POST"])
+@app.route('/reposition_events/specific_ivm', methods = ["POST"])
 def show_specific_IVM():
   dbConn=None
   cursor=None
   try:
     dbConn = psycopg2.connect(DB_CONNECTION_STRING)
     cursor = dbConn.cursor(cursor_factory = psycopg2.extras.DictCursor)
-    # MOSTRAR TUDO
-    query = "SELECT ean, nro, num_serie, fabricante, instante, unidades, nome, SUM(unidades)\
-        FROM evento_reposicao NATURAL JOIN produto NATURAL JOIN categoria\
-        WHERE (evento_reposicao.num_serie=%s AND evento_reposicao.fabricante=%s)\
-        AND (evento_reposicao.num_serie, evento_reposicao.fabricante) IN(SELECT num_serie.fabricante\
-        FROM(\
-        SELECT a.* FROM evento_reposicao a INNER JOIN(SELECT num_serie, fabricante\
-        FROM evento_reposicao GROUP BY num_serie,fabricante)\
-        b ON a.fabricante != b.fabricante AND a.num_serie != b.num_serie) AS num_serie)\
-        GROUP BY ean, nro, num_serie, fabricante, instante, unidades, nome;"
+
+    query = "SELECT ean, nro, tin, num_serie, fabricante, instante, unidades, SUM(unidades), cat\
+                FROM evento_reposicao NATURAL JOIN produto NATURAL JOIN ivm\
+                WHERE (evento_reposicao.num_serie = '101')\
+                GROUP BY evento_reposicao.ean, nro, tin, evento_reposicao.num_serie,\
+                    evento_reposicao.fabricante, instante, unidades, produto.cat, sum_cat;"
+
     data = (request.form["num_serie"], request.form["fabricante"])
     cursor.execute(query, data)
     return render_template("specific_ivm.html", cursor=cursor, params=request.args)
   except Exception as e:
-    return str(e) 
+    return render_template("error.html", error_message=e)  # Renders a page with the error.
   finally:
     dbConn.commit()
     cursor.close()
@@ -244,7 +225,7 @@ def show_specific_IVM():
 
 # --------------------------------------------------- HIERARCHY ---------------------------------------------------
 
-@app.route("/hierarchy")
+@app.route('/hierarchy')
 def list_hierarchy():
     dbConn = None
     cursor = None
@@ -255,26 +236,25 @@ def list_hierarchy():
         cursor.execute(query)
         return render_template("hierarchy.html", cursor=cursor)
     except Exception as e:
-        return str(e)
+        return render_template("error.html", error_message=e)  # Renders a page with the error.
     finally:
         cursor.close()
         dbConn.close()
 
-@app.route("/hierarchy/select_super_category")
+@app.route('/hierarchy/select_super_category')
 def select_super_category():
     try:
         return render_template("select_super_category.html", params=request.args)
     except Exception as e:
-        return str(e)
+        return render_template("error.html", error_message=e)  # Renders a page with the error.
 
-@app.route("/hierarchy/specific_hierarchy", methods = ["POST"])
+@app.route('/hierarchy/specific_hierarchy', methods = ["POST"])
 def list_specific_hierarchy():
     dbConn=None
     cursor=None
     try:
         dbConn = psycopg2.connect(DB_CONNECTION_STRING)
         cursor = dbConn.cursor(cursor_factory = psycopg2.extras.DictCursor)
-        # MOSTRAR TUDO
         query = "WITH RECURSIVE recur AS (\
                     SELECT tabela.super_categoria, tabela.categoria FROM tem_outra tabela \
                     WHERE tabela.super_categoria=%s UNION ALL\
@@ -284,13 +264,13 @@ def list_specific_hierarchy():
         cursor.execute(query)
         return render_template("specific_hierarchy.html", cursor=cursor, params=request.args)
     except Exception as e:
-        return str(e) 
+        return render_template("error.html", error_message=e)  # Renders a page with the error.
     finally:
         dbConn.commit()
         cursor.close()
         dbConn.close()
 
-if __name__ == "__main__":
-    app.run(debug=True)
+CGIHandler().run(app)
 
-#CGIHandler().run(app)
+if __name__ == '__main__':
+    app.run();

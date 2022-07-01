@@ -182,3 +182,5 @@ INSERT INTO evento_reposicao(ean,nro,num_serie,fabricante,instante,unidades,tin)
 'Convenience Joy','2022-01-05',3,10001);
 INSERT INTO evento_reposicao(ean,nro,num_serie,fabricante,instante,unidades,tin) VALUES(2,1001,'101',
 'Convenience Joy','2022-01-05',3,10001);
+
+
